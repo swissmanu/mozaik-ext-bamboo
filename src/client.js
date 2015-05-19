@@ -2,7 +2,6 @@ var request = require('superagent');
 var config  = require('./config');
 var Promise = require('bluebird');
 var chalk   = require('chalk');
-var bluebird = require('bluebird');
 require('superagent-bluebird-promise');
 
 
@@ -23,17 +22,17 @@ var client = function (mozaik) {
                 config.get('bamboo.auth.user'),
                 config.get('bamboo.auth.password')
             )
-            .promise()
-        ;
+            .promise();
     }
 
     return {
-        planResultOverview(planIds) {
-            var requests = planIds.map(function(planId) {
-                return buildRequest('/rest/api/latest/result/' + planId + '.json')
-            });
+        plan_results(parameters) {
+            var planIds = parameters.planIds
+                , requests = planIds.map(function(planId) {
+                    return buildRequest('/rest/api/latest/result/' + planId + '.json')
+                });
 
-            return bluebird.all(requests)
+            return Promise.all(requests)
                 .then(function (responses) {
                     console.log(responses);
                     return responses;

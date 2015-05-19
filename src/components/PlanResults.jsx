@@ -1,9 +1,8 @@
 var React            = require('react');
 var Reflux           = require('reflux');
-var ViewJobs         = require('./ViewJobs.jsx');
 var ApiConsumerMixin = require('mozaik/browser').Mixin.ApiConsumer;
 
-var View = React.createClass({
+var PlanResults = React.createClass({
     mixins: [
         Reflux.ListenerMixin,
         ApiConsumerMixin
@@ -21,7 +20,7 @@ var View = React.createClass({
 
     getApiRequest() {
         return {
-            id: 'bamboo.plan_results.' + this.props.view,
+            id: 'bamboo.plan_results',
             params: {
                 planIds: this.props.planIds
             }
@@ -57,4 +56,4 @@ var View = React.createClass({
     }
 });
 
-module.exports = View;
+module.exports = PlanResults;
