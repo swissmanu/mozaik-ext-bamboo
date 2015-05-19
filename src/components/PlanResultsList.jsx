@@ -4,7 +4,7 @@ var PlanResult       = require('./PlanResult');
 var PlanResultsList = React.createClass({
     render() {
         var planResultNodes = this.props.planResults.map(planResult => {
-            return <PlanResult planResult={ planResult } key={ planResult.buildResultKey } />
+            return <PlanResult planResult={ planResult } key={ planResult.id } />
         });
         
         return (

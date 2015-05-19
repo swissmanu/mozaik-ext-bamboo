@@ -1,7 +1,7 @@
 var gulp         = require('gulp')
     , del        = require('del')
     , rename     = require('gulp-rename')
-    , toFive     = require('gulp-6to5')
+    , babel      = require('gulp-babel')
     , plumber    = require('gulp-plumber')
     , replace    = require('gulp-regex-replace')
     , stripDebug = require('gulp-strip-debug');
@@ -18,7 +18,7 @@ gulp.task('lib-compile', [ 'lib-clean' ], function(){
             '!./src/__tests__/**'
         ])
         .pipe(plumber())
-        .pipe(toFive({}))
+        .pipe(babel({}))
         .pipe(replace({regex: "\\.jsx", replace: ''}))
         .pipe(rename({ extname: '.js' }))
         //.pipe(stripDebug())
