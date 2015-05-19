@@ -29,13 +29,14 @@ var client = function (mozaik) {
         plan_results(parameters) {
             var planIds = parameters.planIds
                 , requests = planIds.map(function(planId) {
-                    return buildRequest('/rest/api/latest/result/' + planId + '.json')
+                    return buildRequest('/rest/api/latest/result/' + planId + '.json?max-result=1')
                 });
 
             return Promise.all(requests)
-                .then(function (responses) {
-                    console.log(responses);
-                    return responses;
+                .then(function(responses) {
+                    return responses.map(function(response) {
+                        return response.body.results.result[0];
+                    });
                 });
         }
     };

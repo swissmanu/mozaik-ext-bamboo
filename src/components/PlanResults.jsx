@@ -1,6 +1,7 @@
 var React            = require('react');
 var Reflux           = require('reflux');
 var ApiConsumerMixin = require('mozaik/browser').Mixin.ApiConsumer;
+var PlanResultsList  = require('./PlanResultsList');
 
 var PlanResults = React.createClass({
     mixins: [
@@ -14,7 +15,7 @@ var PlanResults = React.createClass({
 
     getInitialState() {
         return {
-            view: null
+            planResults: null
         };
     },
 
@@ -27,30 +28,36 @@ var PlanResults = React.createClass({
         };
     },
 
-    onApiData(planIds) {
+    onApiData(planResults) {
         this.setState({
-            planIds: planIds
+            planResults: planResults
         });
     },
 
     render() {
         var titleNode = (
             <span>
-                Bamboo <span className="widget__header__subject">{this.props.view}</span> view
+                Bamboo <span className="widget__header__subject">State</span>
             </span>
         );
         if (this.props.title) {
             titleNode = this.props.title;
         }
 
-        var jobsNode = null;
-        if (this.state.planIds) {
-            
+        var planResultsListNode = null;
+        if (this.state.planResults) {
+            planResultsListNode = <PlanResultsList planResults={ this.state.planResults } />
         }
 
         return (
             <div>
-
+                <div className="widget__header">
+                    { titleNode }
+                    <i className="fa fa-eye" />
+                </div>
+                <div className="widget__body">
+                    { planResultsListNode }
+                </div>
             </div>
         );
     }
