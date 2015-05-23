@@ -34,9 +34,12 @@ var client = function (mozaik) {
 
             return Promise.all(requests)
                 .then(function(responses) {
-                    return responses.map(function(response) {
-                        return response.body.results.result[0];
-                    });
+                    return {
+                        results: responses.map(function(response) {
+                            return response.body.results.result[0];
+                        })
+                        , baseUrl: config.get('bamboo.baseUrl')
+                    };
                 });
         }
     };
