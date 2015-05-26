@@ -54,3 +54,28 @@ key       | required | description
   ]
 }
 ```
+
+## Bamboo Agents Status
+
+> Shows the states for list of agents identified by their ID's.
+
+![Bamboo Agents](https://raw.githubusercontent.com/swissmanu/mozaik-ext-bamboo/master/preview/bamboo.agents.png)
+
+### Parameters
+
+key        | required | description
+-----------|----------|------------------------------------
+`agentIds` | yes      | *An array with agent ID's as string*
+
+### Usage
+
+```javascript
+{
+  type: 'bamboo.agents',
+  columns: 1, rows: 1, x: 0, y: 0,
+  agentIds: [
+    '302612481',
+    '302612482'
+  ]
+}
+```

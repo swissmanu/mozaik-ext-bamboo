@@ -23,7 +23,7 @@ var client = function (mozaik) {
                 , password: config.get('bamboo.auth.password')
             }
         }).catch((reason)=>{
-            mozaik.logger.info(chalk.red(`[bamboo] request failed: ${reason}`));
+            mozaik.logger.error(chalk.red(`[bamboo] request failed: ${reason}`));
         });
     }
 
@@ -83,7 +83,9 @@ var client = function (mozaik) {
                         })
                         , baseUrl: config.get('bamboo.baseUrl')
                     };
-                }).catch(console.error);
+                }).catch((reason)=>{
+                    mozaik.logger.error(chalk.red(`[bamboo] plan_requests failed: ${reason}`));
+                });
         }
         , agents(parameters) {
             var agentIds = parameters.agentIds
@@ -91,7 +93,9 @@ var client = function (mozaik) {
 
             return request.then((response)=>{
                return getAgents(response, agentIds);
-            }).catch(console.error);
+            }).catch((reason)=>{
+                mozaik.logger.error(chalk.red(`[bamboo] agents failed: ${reason}`));
+            });
         }
     };
 };
