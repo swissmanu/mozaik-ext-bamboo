@@ -1,7 +1,8 @@
-var request = require('request-promise');
+var request = require('superagent');
 var config  = require('./config');
 var Promise = require('bluebird');
 var chalk   = require('chalk');
+require('superagent-bluebird-promise');
 
 /**
  * @param {Mozaik} mozaik
@@ -15,16 +16,15 @@ var client = function (mozaik) {
 
         mozaik.logger.info(chalk.yellow(`[bamboo] fetching from ${ url }`));
 
-        return request.get({
-            url: url
-            , json: json
-            , auth: {
-                username: config.get('bamboo.auth.user')
-                , password: config.get('bamboo.auth.password')
-            }
-        }).catch((reason)=>{
-            mozaik.logger.error(chalk.red(`[bamboo] request failed: ${reason}`));
-        });
+        return request.get(url)
+            .auth(
+                config.get('bamboo.auth.user'),
+                config.get('bamboo.auth.password')
+            )
+            .promise()
+            .catch((reason)=>{
+                mozaik.logger.error(chalk.red(`[bamboo] request failed: ${reason}`));
+            });
     }
 
     function getAgents(html, agentIds){
@@ -79,7 +79,7 @@ var client = function (mozaik) {
                 .then((responses)=>{
                     return {
                         results: responses.map(function(response) {
-                            return response.results.result[0];
+                            return response.body.results.result[0];
                         })
                         , baseUrl: config.get('bamboo.baseUrl')
                     };
@@ -92,7 +92,7 @@ var client = function (mozaik) {
                 , request = buildRequest('/agent/viewAgents.action', false);
 
             return request.then((response)=>{
-               return getAgents(response, agentIds);
+               return getAgents(response.text, agentIds);
             }).catch((reason)=>{
                 mozaik.logger.error(chalk.red(`[bamboo] agents failed: ${reason}`));
             });
