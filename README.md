@@ -1,4 +1,5 @@
 # Mozaïk Bamboo Widgets
+[![npm version](https://badge.fury.io/js/mozaik-ext-bamboo.svg)](http://badge.fury.io/js/mozaik-ext-bamboo)
 
 ## Bamboo Client Configuration
 
