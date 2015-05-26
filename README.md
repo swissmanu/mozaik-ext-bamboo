@@ -57,7 +57,7 @@ key       | required | description
 
 ## Bamboo Agents Status
 
-> Shows the states for list of agents identified by their ID's.
+> Shows the current status for a list of agents identified by their ID's.
 
 ![Bamboo Agents](https://raw.githubusercontent.com/swissmanu/mozaik-ext-bamboo/master/preview/bamboo.agents.png)
 

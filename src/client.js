@@ -11,7 +11,7 @@ var client = function (mozaik) {
 
     mozaik.loadApiConfig(config);
 
-    function buildRequest(path, json = true) {
+    function buildRequest(path) {
         var url = config.get('bamboo.baseUrl') + path;
 
         mozaik.logger.info(chalk.yellow(`[bamboo] fetching from ${ url }`));
@@ -89,7 +89,7 @@ var client = function (mozaik) {
         }
         , agents(parameters) {
             var agentIds = parameters.agentIds
-                , request = buildRequest('/agent/viewAgents.action', false);
+                , request = buildRequest('/agent/viewAgents.action');
 
             return request.then((response)=>{
                return getAgents(response.text, agentIds);
