@@ -77,9 +77,12 @@ var client = function (mozaik) {
 
             return Promise.all(requests)
                 .then((responses)=>{
-                    return responses.map(function(response) {
-                        return response.results.result[0];
-                    });
+                    return {
+                        results: responses.map(function(response) {
+                            return response.results.result[0];
+                        })
+                        , baseUrl: config.get('bamboo.baseUrl')
+                    };
                 }).catch(console.error);
         }
         , agents(parameters) {
@@ -92,8 +95,5 @@ var client = function (mozaik) {
         }
     };
 };
-
-
-
 
 module.exports = client;

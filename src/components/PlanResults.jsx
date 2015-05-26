@@ -30,7 +30,8 @@ var PlanResults = React.createClass({
 
     onApiData(planResults) {
         this.setState({
-            planResults: planResults
+            planResults: planResults.results
+            , baseUrl: planResults.baseUrl
         });
     },
 
@@ -46,7 +47,7 @@ var PlanResults = React.createClass({
 
         var planResultsListNode = null;
         if (this.state.planResults) {
-            planResultsListNode = <PlanResultsList planResults={ this.state.planResults } />
+            planResultsListNode = <PlanResultsList planResults={ this.state.planResults } baseUrl={this.state.baseUrl} />
         }
 
         return (
