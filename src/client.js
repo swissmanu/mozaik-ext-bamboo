@@ -1,9 +1,7 @@
-var request = require('superagent');
+var request = require('request-promise');
 var config  = require('./config');
 var Promise = require('bluebird');
 var chalk   = require('chalk');
-require('superagent-bluebird-promise');
-
 
 /**
  * @param {Mozaik} mozaik
@@ -12,24 +10,27 @@ var client = function (mozaik) {
 
     mozaik.loadApiConfig(config);
 
-    function buildRequest(path) {
+    function buildRequest(path, json = true) {
         var url = config.get('bamboo.baseUrl') + path;
 
         mozaik.logger.info(chalk.yellow(`[bamboo] fetching from ${ url }`));
 
-        return request.get(url)
-            .auth(
-                config.get('bamboo.auth.user'),
-                config.get('bamboo.auth.password')
-            )
-            .promise();
+        return request.get({
+            url: url
+            , json: json
+            , auth: {
+                username: config.get('bamboo.auth.user')
+                , password: config.get('bamboo.auth.password')
+            }
+        }).catch((reason)=>{
+            mozaik.logger.info(chalk.red(`[bamboo] request failed: ${reason}`));
+        });
     }
 
     function getAgents(html, agentIds){
 
         function extractAgents(html){
-            //html = "<a href='/bamboo/admin/agent/viewAgent.action?agentId=229638145'>IBClassic Build Agent</a>";
-            var regex = /agent\/viewAgent\.action\?agentId=(\d+)('|")>([\s\w]+)<\/a>/gi;
+            var regex = /agent\/viewAgent\.action\?agentId=(\d+)('|")>([\s\w\(\).]+)<\/a>/gi;
             var match = regex.exec(html);
             var agents = [];
             while(match != null){
@@ -43,52 +44,51 @@ var client = function (mozaik) {
         }
 
         function extractStates(html){
-            // html = <td class="agentStatus"><img src="/bamboo/images/iconsv4/icon-agent.png" alt="Idle">Idle</td>
-            var regex = /class=.agentStatus.><img src=.[-\\/\w\d\.]+. alt=.(\w+).>/gi;
+            var regex = /class=.agentStatus.><img src=.[-\/\w\d\.]+. alt=.(\w+)/gi;
             var match = regex.exec(html);
             var states = [];
             while(match != null){
                 states.push(match[1].toLowerCase());
                 match = regex.exec(html);
             }
-
             return states;
         }
 
         var agents = extractAgents(html);
         var states = extractStates(html);
-        return agents
-            .map((agent, idx)=>{
-                agent.state = states[idx].toLowerCase();
-                return agent;
+        var completeAndFilteredAgents = states
+            .map((state, idx)=>{
+                agents[idx].state = state.toLowerCase();
+                return agents[idx];
             })
             .filter((agent)=>{
-                return agentIds.indexOf(agent.id) !== -1;
+                return agentIds.indexOf(agent.id) > -1;
             });
+
+        return completeAndFilteredAgents;
     }
 
     return {
         plan_results(parameters) {
             var planIds = parameters.planIds
-                , requests = planIds.map(function(planId) {
+                , requests = planIds.map((planId)=>{
                     return buildRequest('/rest/api/latest/result/' + planId + '.json?max-result=1')
                 });
 
             return Promise.all(requests)
-                .then(function(responses) {
+                .then((responses)=>{
                     return responses.map(function(response) {
-                        return response.body.results.result[0];
+                        return response.results.result[0];
                     });
-                });
+                }).catch(console.error);
         }
         , agents(parameters) {
             var agentIds = parameters.agentIds
-                //request = [{body: '<tr class="agentIdle"><td><a href="/bamboo/admin/agent/viewAgent.action?agentId=229638145">IBClassic Build Agent</a> <span class="lozenge lozenge-default lozenge-subtle" title="dedicated">dedicated</span></td><td class="agentStatus"><img src="/bamboo/images/iconsv4/icon-agent.png" alt="Idle">Idle</td></tr><tr class="agentIdle"><td><a href="/bamboo/admin/agent/viewAgent.action?agentId=229638146">IBK Build Agent</a> <span class="lozenge lozenge-default lozenge-subtle" title="dedicated">dedicated</span></td><td class="agentStatus"><img src="/bamboo/images/iconsv4/icon-agent.png" alt="Idle">Idle</td></tr>', status: 200, code:200}];
-                , request = buildRequest('/agent/viewAgents.action');
+                , request = buildRequest('/agent/viewAgents.action', false);
 
-            return Promise.all(request).then(function(response) {
-               return getAgents(response[0].body, agentIds);
-            });
+            return request.then((response)=>{
+               return getAgents(response, agentIds);
+            }).catch(console.error);
         }
     };
 };

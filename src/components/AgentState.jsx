@@ -4,14 +4,15 @@ var AgentState = React.createClass({
     render() {
         var stateClasses = 'bamboo__plan-results__result__state bamboo__plan-results__result__state--'
             , iconClasses = 'fa fa-'
+            , state = this.props.state.toLowerCase()
 
-        if(this.props.state.toLowerCase() === 'idle') {
+        if(state === 'idle' || state === 'building') {
             stateClasses += 'success';
             iconClasses += 'check-square';
-        } else if(this.props.state.toLowerCase() === 'offline') {
+        } else if(state === 'offline') {
             stateClasses += 'error';
             iconClasses += 'warning';
-        } else {
+        } else{
             stateClasses += 'unknown';
             iconClasses += 'question-circle';
         }
