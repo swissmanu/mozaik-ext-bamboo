@@ -9,10 +9,10 @@ var AgentState = React.createClass({
         if(state === 'idle' || state === 'building') {
             stateClasses += 'success';
             iconClasses += 'check-square';
-        } else if(state === 'offline') {
+        } else if(state === 'offline' || state === 'disabled') {
             stateClasses += 'error';
             iconClasses += 'warning';
-        } else{
+        } else {
             stateClasses += 'unknown';
             iconClasses += 'question-circle';
         }

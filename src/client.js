@@ -2,6 +2,8 @@ var request = require('superagent');
 var config  = require('./config');
 var Promise = require('bluebird');
 var chalk   = require('chalk');
+var cheerio = require('cheerio');
+var Agent   = require('./agent.class');
 require('superagent-bluebird-promise');
 
 /**
@@ -29,43 +31,28 @@ var client = function (mozaik) {
 
     function getAgents(html, agentIds){
 
-        function extractAgents(html){
-            var regex = /agent\/viewAgent\.action\?agentId=(\d+)('|")>([\s\w\(\).]+)<\/a>/gi;
-            var match = regex.exec(html);
-            var agents = [];
-            while(match != null){
-                agents.push({
-                    id: match[1],
-                    name: match[3]
-                });
-                match = regex.exec(html);
-            }
-            return agents;
+        function extractAgents(rowsSelector){
+            return $(rowsSelector).map((idx, tr)=>{
+                var agent = Agent.createFromRow($(tr));
+                if(agentIds.indexOf(agent.id) === -1){
+                    return null;
+                }
+                return agent;
+            }).get();
         }
 
-        function extractStates(html){
-            var regex = /class=.agentStatus.><img src=.[-\/\w\d\.]+. alt=.(\w+)/gi;
-            var match = regex.exec(html);
-            var states = [];
-            while(match != null){
-                states.push(match[1].toLowerCase());
-                match = regex.exec(html);
-            }
-            return states;
+        var $ = cheerio.load(html)
+            , onlineAgents = extractAgents('#Onlineremoteagents tr')
+            , offlineAgents = extractAgents('#Offlineremoteagents tr')
+            , foundAgents = onlineAgents.concat(offlineAgents)
+            , foundAgentIds = foundAgents.map((agent)=>{ return agent.id; })
+            , absentAgentIds = agentIds.filter((id)=>{ return foundAgentIds.indexOf(id) === -1; });
+
+        if(absentAgentIds.length > 0){
+            mozaik.logger.warn(chalk.red(`[bamboo] agent ids not found: ${absentAgentIds.join(', ')}.`));
         }
 
-        var agents = extractAgents(html);
-        var states = extractStates(html);
-        var completeAndFilteredAgents = states
-            .map((state, idx)=>{
-                agents[idx].state = state.toLowerCase();
-                return agents[idx];
-            })
-            .filter((agent)=>{
-                return agentIds.indexOf(agent.id) > -1;
-            });
-
-        return completeAndFilteredAgents;
+        return foundAgents;
     }
 
     return {
