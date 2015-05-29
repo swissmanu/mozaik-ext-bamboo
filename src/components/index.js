@@ -1,4 +1,4 @@
 module.exports = {
-    PlanResults: require('./PlanResults.jsx')
-    , Agents: require('./Agents.jsx')
+    PlanResults: require('./planResults/PlanResults.jsx')
+    , Agents: require('./agents/Agents.jsx')
 };

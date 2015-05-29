@@ -1,4 +1,4 @@
-export default class Agent{
+export default class AgentFactory{
 
     constructor($tr){
         this.$tr = $tr;
@@ -44,6 +44,6 @@ export default class Agent{
     }
 
     static createFromRow($tr){
-        return new Agent($tr).create();
+        return new AgentFactory($tr).create();
     }
 }

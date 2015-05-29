@@ -1,9 +1,9 @@
-var request = require('superagent');
-var config  = require('./config');
-var Promise = require('bluebird');
-var chalk   = require('chalk');
-var cheerio = require('cheerio');
-var Agent   = require('./agent.class');
+var request        = require('superagent');
+var config         = require('./config');
+var Promise        = require('bluebird');
+var chalk          = require('chalk');
+var cheerio        = require('cheerio');
+var AgentFactory   = require('./components/agents/agentFactory');
 require('superagent-bluebird-promise');
 
 /**
@@ -33,7 +33,7 @@ var client = function (mozaik) {
 
         function extractAgents(rowsSelector){
             return $(rowsSelector).map((idx, tr)=>{
-                var agent = Agent.createFromRow($(tr));
+                var agent = AgentFactory.createFromRow($(tr));
                 if(agentIds.indexOf(agent.id) === -1){
                     return null;
                 }
